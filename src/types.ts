@@ -29,6 +29,10 @@ export interface TextLayer {
   x: number; // percentage offset from center (-100 to 100)
   y: number; // percentage offset from center (-100 to 100)
   rotation: number; // in degrees
+
+  // Mirroring options
+  flipX?: boolean;
+  flipY?: boolean;
 }
 
 export interface ImageLayer {

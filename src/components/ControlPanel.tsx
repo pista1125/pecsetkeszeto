@@ -23,7 +23,9 @@ import {
   ChevronUp, 
   Bold, 
   Italic, 
-  RefreshCw
+  RefreshCw,
+  FlipHorizontal,
+  FlipVertical
 } from 'lucide-react';
 
 
@@ -712,6 +714,26 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                         {layer.type === 'curved' && isCircular ? (
                           <>
                             <div className="form-group">
+                              <label>Pozíció sablon</label>
+                              <div className="toggle-group select-smaller">
+                                <button 
+                                  type="button"
+                                  className={layer.direction === 'clockwise' && layer.startAngle === -90 ? 'active' : ''}
+                                  onClick={() => updateTextLayer(layer.id, { direction: 'clockwise', startAngle: -90 })}
+                                >
+                                  Felső ív (Gyors)
+                                </button>
+                                <button 
+                                  type="button"
+                                  className={layer.direction === 'counterclockwise' && layer.startAngle === 90 ? 'active' : ''}
+                                  onClick={() => updateTextLayer(layer.id, { direction: 'counterclockwise', startAngle: 90 })}
+                                >
+                                  Alsó ív (Gyors)
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="form-group">
                               <div className="flex-row">
                                 <label>Körív sugara</label>
                                 <span className="val-preview">{layer.radius}px</span>
@@ -792,6 +814,30 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                             </div>
                           </>
                         )}
+
+                        <div className="form-group" style={{ borderTop: '1px solid var(--border-color, #e2e8f0)', paddingTop: '12px', marginTop: '12px' }}>
+                          <label>Szöveg tükrözése</label>
+                          <div className="toggle-group select-smaller">
+                            <button
+                              type="button"
+                              className={layer.flipX ? 'active' : ''}
+                              onClick={() => updateTextLayer(layer.id, { flipX: !layer.flipX })}
+                              title="Tükrözés vízszintesen (X tengely)"
+                            >
+                              <FlipHorizontal size={14} style={{ marginRight: '6px' }} />
+                              X tükrözés
+                            </button>
+                            <button
+                              type="button"
+                              className={layer.flipY ? 'active' : ''}
+                              onClick={() => updateTextLayer(layer.id, { flipY: !layer.flipY })}
+                              title="Tükrözés függőlegesen (Y tengely)"
+                            >
+                              <FlipVertical size={14} style={{ marginRight: '6px' }} />
+                              Y tükrözés
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

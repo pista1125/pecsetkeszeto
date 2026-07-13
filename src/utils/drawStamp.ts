@@ -262,6 +262,7 @@ export const drawStamp = (
           ctx.translate(centerX, centerY);
           ctx.rotate(rot);
           ctx.translate(0, -radius);
+          ctx.scale(layer.flipX ? -1 : 1, layer.flipY ? -1 : 1);
           ctx.fillText(char, 0, 0);
           currentAngle += charAngle;
         } else {
@@ -270,6 +271,7 @@ export const drawStamp = (
           ctx.rotate(rot);
           ctx.translate(0, radius);
           ctx.rotate(Math.PI);
+          ctx.scale(layer.flipX ? -1 : 1, layer.flipY ? -1 : 1);
           ctx.fillText(char, 0, 0);
           currentAngle -= charAngle;
         }
@@ -286,6 +288,7 @@ export const drawStamp = (
       
       ctx.translate(tx, ty);
       ctx.rotate((layer.rotation * Math.PI) / 180);
+      ctx.scale(layer.flipX ? -1 : 1, layer.flipY ? -1 : 1);
       
       if (layer.letterSpacing !== 1.0) {
         const chars = Array.from(layer.text);

@@ -80,6 +80,8 @@ export const useStampState = () => {
         x: 0,
         y: 0,
         rotation: 0,
+        flipX: false,
+        flipY: false,
       };
       return {
         ...prev,
