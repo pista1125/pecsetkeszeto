@@ -25,7 +25,9 @@ import {
   Italic, 
   RefreshCw,
   FlipHorizontal,
-  FlipVertical
+  FlipVertical,
+  Upload,
+  Save
 } from 'lucide-react';
 
 
@@ -76,6 +78,68 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  // Handle project export (JSON)
+  const handleExportProject = () => {
+    try {
+      const jsonString = JSON.stringify(settings, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `pecset_projekt_${settings.type}_${Date.now()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Hiba a projekt exportálása közben:", error);
+      alert("Hiba történt a projekt mentése során.");
+    }
+  };
+
+  // Handle project import (JSON)
+  const handleImportProject = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        
+        if (!parsed || typeof parsed !== 'object' || !parsed.type || !['circular', 'rectangular'].includes(parsed.type)) {
+          alert("Érvénytelen projektfájl! Kérjük, egy érvényes pecsét projekt JSON fájlt tölts fel.");
+          return;
+        }
+
+        updateSettings((current) => {
+          const merged: StampSettings = {
+            ...current,
+            ...parsed,
+            outerBorder: { ...(current.outerBorder || {}), ...(parsed.outerBorder || {}) },
+            innerBorder1: { ...(current.innerBorder1 || {}), ...(parsed.innerBorder1 || {}) },
+            innerBorder2: { ...(current.innerBorder2 || {}), ...(parsed.innerBorder2 || {}) },
+            middleDividers: { ...(current.middleDividers || {}), ...(parsed.middleDividers || {}) },
+            textLayers: (parsed.textLayers || []).map((layer: any) => ({
+              ...layer,
+              flipX: layer.flipX ?? false,
+              flipY: layer.flipY ?? false,
+            })),
+            imageLayers: parsed.imageLayers || [],
+          };
+          return merged;
+        });
+
+        alert("Projekt sikeresen betöltve!");
+      } catch (error) {
+        console.error("Hiba a projekt beolvasása során:", error);
+        alert("Hibás vagy sérült projektfájl!");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const toggleLayerExpand = (id: string) => {
@@ -1161,6 +1225,37 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             
             <div className="export-note">
               <p>💡 <strong>Tipp:</strong> A <strong>PNG</strong> formátum megőrzi az átlátszóságot (a pecséten kívüli részek üresek lesznek), ami ideális digitális aláírásokhoz és PDF dokumentumokhoz!</p>
+            </div>
+
+            <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid var(--border-color, #e2e8f0)' }} />
+
+            <h3>Projekt mentése / betöltése</h3>
+            <p className="subtitle">Mentsd el a teljes szerkesztési folyamatot projektként, és töltsd vissza később a folytatáshoz:</p>
+
+            <div className="export-actions" style={{ marginTop: '16px', display: 'flex', gap: '12px' }}>
+              <button 
+                type="button"
+                className="btn-secondary btn-lg font-bold"
+                onClick={handleExportProject}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1 }}
+                title="Pecsét projekt mentése JSON fájlként"
+              >
+                <Save size={18} /> Projekt mentése (.json)
+              </button>
+
+              <label 
+                className="btn-secondary btn-lg font-bold cursor-pointer" 
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flex: 1, margin: 0, padding: '12px' }}
+                title="Korábban elmentett projekt JSON fájl betöltése"
+              >
+                <Upload size={18} /> Projekt betöltése (.json)
+                <input 
+                  type="file" 
+                  accept=".json" 
+                  style={{ display: 'none' }} 
+                  onChange={handleImportProject} 
+                />
+              </label>
             </div>
           </div>
         )}
